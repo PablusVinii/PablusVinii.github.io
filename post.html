@@ -4,86 +4,222 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Artigo · Pablus Vinicius</title>
+  <meta name="description" content="Artigos e notas técnicas sobre Infraestrutura de TI, Redes, Suporte N3, Automação e Engenharia de Hardware por Pablus Vinicius." />
   <meta name="theme-color" content="#0a0910" />
+  <meta property="og:type" content="article" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:site_name" content="Pablus Vinicius · InfraTech Pro" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0910'/%3E%3Cpath d='M18 20h16a10 10 0 0 1 0 20H24v10h-6V20zm6 6v8h10a4 4 0 0 0 0-8H24z' fill='%238b5cf6'/%3E%3Ccircle cx='46' cy='46' r='5' fill='%2306b6d4'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"
+    integrity="sha384-H+hy9ULve6xfxRkWIh/YOtvDdpXgV2fmAGQkIDTxIgZwNoaoBal14Di2YTMR6MzR"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"
+    integrity="sha384-eEu5CTj3qGvu9PdJuS+YlkNi7d2XxQROAFYOr59zgObtlcux1ae1Il3u7jvdCSWu"
+    crossorigin="anonymous"
+  ></script>
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Pular para o conteúdo</a>
   <div class="bg-glow" aria-hidden="true"></div>
 
   <header class="navbar">
     <div class="container nav-inner">
       <a href="index.html" class="brand">
-        <span class="brand-dot"></span>
+        <span class="brand-dot" aria-hidden="true"></span>
         <span>Pablus Vinicius</span>
       </a>
-      <nav class="nav-links">
+      <button
+        type="button"
+        class="nav-toggle"
+        id="nav-toggle"
+        aria-label="Abrir menu de navegação"
+        aria-expanded="false"
+        aria-controls="nav-menu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="nav-links" id="nav-menu" aria-label="Navegação principal">
         <a href="index.html#sobre">Sobre</a>
-        <a href="index.html#projetos">Projetos</a>
+        <a href="index.html#stack">Especialidades</a>
+        <a href="index.html#projetos">Trajetória</a>
         <a href="index.html#blog">Blog</a>
+        <a href="index.html#contato">Contato</a>
       </nav>
     </div>
   </header>
 
-  <main class="container">
+  <main class="container" id="main-content">
     <article class="article-wrap">
-      <a href="index.html#blog" class="back-link">← Voltar para todos os artigos</a>
+      <div class="article-topbar">
+        <a href="index.html#blog" class="back-link">← Voltar para todos os artigos</a>
+        <button type="button" class="copy-link-btn mono" id="copy-post-link">Copiar link</button>
+      </div>
       <div id="post-content" class="card">
         <p class="muted">Carregando artigo...</p>
       </div>
+      <nav class="post-nav" id="post-nav" aria-label="Navegação entre artigos"></nav>
     </article>
   </main>
 
   <footer class="footer">
     <div class="container footer-inner">
       <span>© 2026 Pablus Vinicius · InfraTech Pro</span>
-      <a href="index.html" style="color: var(--muted); text-decoration: none;">Início</a>
+      <a href="index.html" class="footer-link">Início</a>
     </div>
   </footer>
 
   <script>
+    (function setupNav() {
+      const toggle = document.getElementById('nav-toggle');
+      const menu = document.getElementById('nav-menu');
+      if (!toggle || !menu) return;
+
+      toggle.addEventListener('click', () => {
+        const isOpen = menu.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+      });
+    })();
+
+    (function setupCopyUrl() {
+      const btn = document.getElementById('copy-post-link');
+      if (!btn || !navigator.clipboard) return;
+      btn.addEventListener('click', async () => {
+        const original = btn.textContent;
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          btn.textContent = 'Link copiado!';
+          setTimeout(() => { btn.textContent = original; }, 2200);
+        } catch {
+          btn.textContent = 'Erro ao copiar';
+        }
+      });
+    })();
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[s]));
+    }
+
+    function renderMarkdownSafe(mdText) {
+      if (window.marked && window.DOMPurify) {
+        const rawHtml = window.marked.parse(mdText);
+        return window.DOMPurify.sanitize(rawHtml);
+      }
+      return `<pre>${escapeHtml(mdText)}</pre>`;
+    }
+
+    function enhanceCodeBlocks(container) {
+      container.querySelectorAll('pre').forEach(pre => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-block-wrap';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'copy-code-btn mono';
+        btn.textContent = 'Copiar';
+        btn.addEventListener('click', async () => {
+          const text = pre.innerText || pre.textContent || '';
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = 'Copiado!';
+            setTimeout(() => { btn.textContent = 'Copiar'; }, 1800);
+          } catch {
+            btn.textContent = 'Erro';
+          }
+        });
+        wrapper.appendChild(btn);
+      });
+    }
+
     async function loadPost() {
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('slug');
       const target = document.getElementById('post-content');
+      const navContainer = document.getElementById('post-nav');
 
       if (!slug) {
-        target.innerHTML = '<p>Artigo não especificado.</p>';
+        target.innerHTML = '<p>Artigo não especificado. <a href="index.html#blog" class="project-link">Ver todos os artigos</a>.</p>';
         return;
       }
 
       try {
         const indexRes = await fetch('posts/index.json?t=' + Date.now());
+        if (!indexRes.ok) throw new Error('Falha ao carregar o índice de artigos.');
         const posts = await indexRes.json();
-        const meta = posts.find(p => p.slug === slug);
+        const idx = Array.isArray(posts) ? posts.findIndex(p => p.slug === slug) : -1;
 
-        if (!meta) {
-          target.innerHTML = '<p>Artigo não encontrado.</p>';
+        if (idx === -1) {
+          target.innerHTML = '<p>Artigo não encontrado. <a href="index.html#blog" class="project-link">Voltar ao blog</a>.</p>';
           return;
         }
 
-        document.title = `${meta.title} · Pablus Vinicius`;
-        const mdRes = await fetch(meta.file + '?t=' + Date.now());
+        const meta = posts[idx];
+        const mdRes = await fetch((meta.file || '') + '?t=' + Date.now());
+        if (!mdRes.ok) throw new Error('Arquivo do artigo não encontrado.');
         const mdText = await mdRes.text();
+
+        const wordCount = mdText.trim().split(/\s+/).filter(Boolean).length;
+        const computedReadTime = meta.readTime || `${Math.max(1, Math.round(wordCount / 200))} min`;
+
+        document.title = `${meta.title} · Pablus Vinicius`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc && meta.excerpt) {
+          metaDesc.setAttribute('content', meta.excerpt);
+        }
 
         target.innerHTML = `
           <div class="article-header">
-            ${meta.cover ? `<img src="${meta.cover}" alt="${meta.title}" class="article-cover" />` : ''}
+            ${meta.cover ? `<img src="${escapeHtml(meta.cover)}" alt="${escapeHtml(meta.title)}" class="article-cover" />` : ''}
             <div class="blog-meta">
-              <span class="project-badge">${meta.category || 'Artigo'}</span>
-              <span class="mono date-text">${meta.date || ''} · ${meta.readTime || '3 min'}</span>
+              <span class="project-badge">${escapeHtml(meta.category || 'Artigo')}</span>
+              <span class="mono date-text">${escapeHtml(meta.date || '')} · ${escapeHtml(computedReadTime)}</span>
             </div>
-            <h1>${meta.title}</h1>
+            <h1>${escapeHtml(meta.title)}</h1>
+            ${meta.excerpt ? `<p class="article-lead">${escapeHtml(meta.excerpt)}</p>` : ''}
           </div>
-          <div class="article-body">${marked.parse(mdText)}</div>
+          <div class="article-body">${renderMarkdownSafe(mdText)}</div>
         `;
+
+        enhanceCodeBlocks(target);
+
+        // Navegação anterior / próximo
+        const prevPost = idx > 0 ? posts[idx - 1] : null;
+        const nextPost = idx < posts.length - 1 ? posts[idx + 1] : null;
+        const navParts = [];
+        if (prevPost) {
+          navParts.push(`
+            <a href="post.html?slug=${encodeURIComponent(prevPost.slug)}" class="card post-nav-card">
+              <span class="mono date-text">← Mais recente</span>
+              <strong>${escapeHtml(prevPost.title)}</strong>
+            </a>
+          `);
+        }
+        if (nextPost) {
+          navParts.push(`
+            <a href="post.html?slug=${encodeURIComponent(nextPost.slug)}" class="card post-nav-card post-nav-next">
+              <span class="mono date-text">Mais antigo →</span>
+              <strong>${escapeHtml(nextPost.title)}</strong>
+            </a>
+          `);
+        }
+        navContainer.innerHTML = navParts.join('');
       } catch (err) {
-        target.innerHTML = '<p>Erro ao carregar o artigo.</p>';
+        target.innerHTML = `<p>Erro ao carregar o artigo: ${escapeHtml(err.message || 'Tente novamente mais tarde.')}</p>`;
       }
     }
+
     loadPost();
   </script>
 </body>
